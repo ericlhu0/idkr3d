@@ -24,7 +24,7 @@ from mimicgen.utils.file_utils import config_generator_to_script_lines
 
 # set path to folder containing src datasets
 # SRC_DATA_DIR = os.path.join(mimicgen.__path__[0], "../datasets/source")
-SRC_DATA_DIR = "/Users/eric/Documents/r3d/robosuite/robosuite/models/assets/demonstrations/ppmugr_test1-11-30-11am/"
+SRC_DATA_DIR = "~/r3d/robosuite/robosuite/models/assets/demonstrations/ppmugr_real-12-02-2am/"
 
 # set base folder for where to copy each base config and generate new config files for data generation
 CONFIG_DIR = "/tmp/core_configs"
@@ -33,7 +33,7 @@ CONFIG_DIR = "/tmp/core_configs"
 OUTPUT_FOLDER = "/tmp/core_datasets"
 
 # number of trajectories to generate (or attempt to generate)
-NUM_TRAJ = 200
+NUM_TRAJ = 2000
 
 # whether to guarantee that many successful trajectories (e.g. keep running until that many successes, or stop at that many attempts)
 GUARANTEE = True

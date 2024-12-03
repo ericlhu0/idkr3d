@@ -122,14 +122,15 @@ class SpaceMouse(Device):
         print("Opening SpaceMouse device")
         self.vendor_id = vendor_id
         self.product_id = product_id
-        self.device = hid.device()
-        self.device.open(self.vendor_id, self.product_id)  # SpaceMouse
+        # self.device = hid.device()
+        # self.device.open(self.vendor_id, self.product_id)  # SpaceMouse
+        self.device = hid.Device(self.vendor_id, self.product_id)
 
         self.pos_sensitivity = pos_sensitivity
         self.rot_sensitivity = rot_sensitivity
 
-        print("Manufacturer: %s" % self.device.get_manufacturer_string())
-        print("Product: %s" % self.device.get_product_string())
+        # print("Manufacturer: %s" % self.device.get_manufacturer_string())
+        # print("Product: %s" % self.device.get_product_string())
 
         # 6-DOF variables
         self.x, self.y, self.z = 0, 0, 0
@@ -224,7 +225,7 @@ class SpaceMouse(Device):
             d = self.device.read(13)
             if d is not None and self._enabled:
 
-                if self.product_id == 50741:
+                if self.product_id == 50731:
                     ## logic for older spacemouse model
 
                     if d[0] == 1:  ## readings from 6-DoF sensor

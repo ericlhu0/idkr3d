@@ -34,6 +34,7 @@ import imageio
 import numpy as np
 from copy import deepcopy
 import xml.etree.ElementTree as ET
+import trimesh
 
 import robomimic
 from robomimic.utils.file_utils import get_env_metadata_from_dataset
@@ -46,6 +47,107 @@ from mimicgen.configs import config_factory, MG_TaskSpec
 from mimicgen.datagen.data_generator import DataGenerator
 from mimicgen.env_interfaces.base import make_interface
 
+def rotate_meshes(og_mesh_filename, new_mesh_filename):
+    """
+    Reads these two meshes and creates a 3rd mesh that is 'new_mesh' with its orientation rotated to match 'og_mesh'
+    The file name EXCLUDES the .obj
+
+    Parameters:
+        - og_mesh_filename: str - Name of the og_mesh file
+        - new_mesh_filename: str - Name of the new_mesh file
+
+    Returns:
+        None
+    """
+
+    def translate_mesh(mesh):
+        """
+        Centers the mesh so that that base of the object is at 0, 0
+        (Objects start with the center of the object at 0, 0)
+        Assumes z axis movement
+
+        Parameters:
+            - mesh: mesh Obj
+
+        Returns:
+            - trans_mesh: mesh Obj
+        """
+        vertices = mesh.vertices
+        z_coords = vertices[:, 2]
+        z_min = np.min(z_coords)
+        mesh.vertices[:, 2] = mesh.vertices[:, 2] - z_min
+
+        return mesh
+
+    def planar_direction(mesh):
+        vertices = mesh.vertices
+        z_coords = vertices[:, 2]
+        z_min, z_max = np.min(z_coords), np.max(z_coords)
+        height = z_max - z_min
+        body_mask = (z_coords > z_min + 0.1 * height) & (z_coords < z_max - 0.2 * height)  # top and bottom excluded
+        body_vertices = vertices[body_mask]
+
+        body_center_xy = np.mean(body_vertices[:, :2], axis=0)
+
+        body_radial_distances = np.linalg.norm(body_vertices[:, :2] - body_center_xy, axis=1)
+        mean_radius = np.mean(body_radial_distances)
+        radius_std = np.std(body_radial_distances)
+
+        radial_distances = np.linalg.norm(vertices[:, :2] - body_center_xy, axis=1)
+        height_mask = (z_coords > z_min + 0.1 * height) & (z_coords < z_max - 0.2 * height)
+        handle_mask = (radial_distances > mean_radius + 1.5 * radius_std) & height_mask
+        handle_vertices = vertices[handle_mask]
+        mug_centroid_3d = np.mean(body_vertices, axis=0)  # use body centroid (not full mug)
+        handle_centroid_3d = np.mean(handle_vertices, axis=0)
+        direction_3d = handle_centroid_3d - mug_centroid_3d
+        planar_direction = np.array([direction_3d[0], direction_3d[1], 0])
+        planar_direction = planar_direction / np.linalg.norm(planar_direction[:2])
+
+        return planar_direction
+
+    def compute_transformation(new_vec, og_vec):
+        """
+        Compute the transformation matrix from new_vec to og_vec
+        """
+        norm_new_vec = new_vec / np.linalg.norm(new_vec)
+        norm_og_vec = og_vec / np.linalg.norm(og_vec)
+
+        # find the axis of rotation
+        axis = np.cross(norm_new_vec, norm_og_vec)
+        axis = axis / np.linalg.norm(axis)
+        a_x = axis[0]
+        a_y = axis[1]
+        a_z = axis[2]
+
+        # angle of rotation in radians
+        theta = np.arccos(np.dot(norm_new_vec, norm_og_vec))
+
+        k = np.asarray([
+            [0, -a_z, a_y],
+            [a_z, 0, -a_x],
+            [-a_y, a_x, 0]
+        ])
+
+        iden = np.eye(3)
+
+        rot = iden + np.sin(theta) * k + (1 - np.cos(theta)) * (np.dot(k, k))
+
+        return rot
+
+    og_mesh = trimesh.load_mesh(og_mesh_filename)
+    new_mesh = trimesh.load_mesh(new_mesh_filename)
+
+    # translate the base of the object up so that the base starts at 0, 0
+    new_mesh = translate_mesh(new_mesh)
+
+    og_normal = planar_direction(og_mesh)
+    new_normal = planar_direction(new_mesh)
+
+    rot = compute_transformation(new_normal, og_normal)
+
+    new_mesh.vertices = new_mesh.vertices.dot(rot.T)
+    print('new mesh filename', new_mesh_filename)
+    new_mesh.export(new_mesh_filename, file_type='obj')
 
 def get_important_stats(
     new_dataset_folder_path,
@@ -302,9 +404,44 @@ def generate_dataset(
     num_trials = mg_config.experiment.generation.num_trials
     guarantee_success = mg_config.experiment.generation.guarantee
 
+
+
+    # logic for swapping out the og object with new generated ones
+    # load xml
+    xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+    
+    target_mesh_name = "kettle_visual_mesh"  # The name of the mesh to update
+    mesh_xml_object = None
+
+    # Find and update the mesh file path
+    for mesh in root.findall(".//mesh"):
+        if mesh.get("name") == target_mesh_name:
+            mesh_xml_object = mesh
+            og_obj_path = mesh.get("file")
+            break
+
+    if mesh_xml_object is None:
+        raise ValueError("Could not find mesh with name {}".format(target_mesh_name))
+
+    # Save the updated XML back to a file
+    updated_xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with your desired output file name
+    tree.write(updated_xml_file)
+    # find and store all generated object paths
+    og_obj_path = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/meshes/mug.obj"
+    generated_obj_root_dir = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/meshes/generated_objs/"
+    generated_obj_paths = os.listdir(generated_obj_root_dir)
+    print("found generated objects", generated_obj_paths)
+
+    for obj_path in generated_obj_paths:
+        rotate_meshes(og_obj_path, generated_obj_root_dir + obj_path)
+
+    print("finished rotating objs")
+
     while True:
         # change mesh path in kettle.xml
-        if False:
+        if True:
             # Load the XML file
             xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
             tree = ET.parse(xml_file)

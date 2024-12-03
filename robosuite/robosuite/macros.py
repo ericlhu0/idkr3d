@@ -35,8 +35,8 @@ CONCATENATE_IMAGES = False
 MUJOCO_GPU_RENDERING = True
 
 # Spacemouse settings. Used by SpaceMouse class in robosuite/devices/spacemouse.py
-SPACEMOUSE_VENDOR_ID = 9583
-SPACEMOUSE_PRODUCT_ID = 50734
+SPACEMOUSE_VENDOR_ID = 1133
+SPACEMOUSE_PRODUCT_ID = 50731
 
 # If LOGGING LEVEL is set to None, the logger will be turned off
 CONSOLE_LOGGING_LEVEL = "WARN"

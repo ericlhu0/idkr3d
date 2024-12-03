@@ -117,6 +117,8 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, file_name="demo.
     num_eps = 0
     env_name = None  # will get populated at some point
 
+    successcount = 0
+
     for ep_directory in os.listdir(directory):
 
         state_paths = os.path.join(directory, ep_directory, "state_*.npz")
@@ -157,6 +159,7 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, file_name="demo.
             # write datasets for states and actions
             ep_data_grp.create_dataset("states", data=np.array(states))
             ep_data_grp.create_dataset("actions", data=np.array(actions))
+            successcount += 1
         else:
             print("Demonstration is unsuccessful and has NOT been saved")
 
@@ -167,6 +170,9 @@ def gather_demonstrations_as_hdf5(directory, out_dir, env_info, file_name="demo.
     grp.attrs["repository_version"] = suite.__version__
     grp.attrs["env"] = env_name
     grp.attrs["env_info"] = env_info
+
+    print('successes:', successcount)
+
 
     f.close()
 
