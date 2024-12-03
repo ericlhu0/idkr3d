@@ -1,7 +1,7 @@
 <mujoco model="kettle">
   <asset>
     <mesh file="meshes/mug.obj" name="kettle_mesh" scale="0.6 0.6 0.6" />
-    <mesh file="meshes/generated_objs/kettle.obj" name="kettle_visual_mesh" scale="0.15 0.15 0.15" />
+    <mesh file="meshes/generated_objs/pitcher.obj" name="kettle_visual_mesh" scale="0.15 0.15 0.15" />
     <texture file="../textures/ceramic.png" name="tex-ceramic" type="2d" />
     <material name="ceramic" reflectance="0.5" texrepeat="1 1" texture="tex-ceramic" texuniform="true" />
   </asset>
