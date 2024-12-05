@@ -51,15 +51,25 @@ def compute_sdf_error(mesh1, mesh2):
       - sample_points (from proposed mesh)
       - closest_points (from gt)
     """
-    # Sample points on the surface of mesh1 (proposed mesh)
-    sample_points = mesh1.sample(10000)  # You can change 10000 for more/less samples
+    sample_points_m1 = mesh1.sample(10000)
+    sample_points_gt = mesh2.sample(10000)
 
-    # Compute the SDF of the ground truth mesh (mesh2) at these points
-    sdf_gt = compute_sdf_at_points(mesh2, sample_points)
+    sdf_gt = compute_sdf_at_points(mesh2, sample_points_m1)
+    sdf_symmetric = compute_sdf_at_points(mesh1, sample_points_gt)
 
-    closest_points, _, _ = mesh2.nearest.on_surface(sample_points)
+    sdf_gt = np.mean(np.abs(sdf_gt))
+    sdf_symmetric = np.mean(np.abs(sdf_symmetric))
 
-    return np.mean(sdf_gt), sample_points, closest_points
+    return (sdf_gt + sdf_symmetric) / 2
+    # # Sample points on the surface of mesh1 (proposed mesh)
+    # sample_points = mesh1.sample(10000)  # You can change 10000 for more/less samples
+
+    # # Compute the SDF of the ground truth mesh (mesh2) at these points
+    # sdf_gt = compute_sdf_at_points(mesh2, sample_points)
+
+    # closest_points, _, _ = mesh2.nearest.on_surface(sample_points)
+
+    # return np.mean(sdf_gt), sample_points, closest_points
 
 def align_and_compare_meshes(mesh1, mesh2):
     """
@@ -99,16 +109,16 @@ def visualize_meshes(mesh1, mesh2, sdf_error):
     scene.show(title="Mesh Comparison", caption=text)
 
 # Load the meshes
-mesh1 = trimesh.load("gen_mug_handle.obj")  # Replace with your mesh file
+mesh1 = trimesh.load("og_objects/gen_mug_handle.obj")  # Replace with your mesh file
 # mesh1 = trimesh.load("mug.obj")
 # mesh1 = trimesh.load("gen_rotated.obj")
-mesh2 = trimesh.load("og_mug_handle.obj")  # Replace with your mesh file
+mesh2 = trimesh.load("og_objects/og_mug_handle.obj")  # Replace with your mesh file
 
 min_bound, max_bound = mesh2.bounding_box.bounds
 bbox_size = np.linalg.norm(max_bound - min_bound) 
 
 # Align and compare the meshes
-sdf_error, sampled_points_mesh1, nearest_points_mesh2 = align_and_compare_meshes(mesh1, mesh2)
+sdf_error = align_and_compare_meshes(mesh1, mesh2)
 sdf_error = sdf_error / bbox_size
 print(f"SDF error: {sdf_error}")
 

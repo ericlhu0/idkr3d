@@ -1,7 +1,7 @@
 import numpy as np
 import trimesh
 
-def rotate_meshes(og_mesh_filename, new_mesh_filename):
+def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
   """
   Reads these two meshes and creates a 3rd mesh that is 'new_mesh' with its orientation rotated to match 'og_mesh'
   The file name EXCLUDES the .obj
@@ -149,7 +149,8 @@ def rotate_meshes(og_mesh_filename, new_mesh_filename):
   new_mesh.vertices += (og_mesh_handle_centroid - new_mesh_handle_centroid)
   translate_mesh(new_mesh) ## put the base at z=0
 
-  new_mesh.export(new_mesh_filename + 'Rotated.obj', file_type = 'obj')
+  # new_mesh.export(new_mesh_filename + 'Rotated.obj', file_type = 'obj')
+  new_mesh.export(output_path + 'Rotated.obj', file_type='obj')
   
 
 if __name__ == '__main__':
