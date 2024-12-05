@@ -102,6 +102,7 @@ def get_env_metadata_from_dataset(dataset_path, set_env_specific_obs_processors=
             :`'env_kwargs'`: dictionary of keyword arguments to pass to environment constructor
     """
     dataset_path = os.path.expanduser(dataset_path)
+    print('dataset_path:', dataset_path)
     f = h5py.File(dataset_path, "r")
     print('f data attrs:', f["data"].attrs.keys())
     env_meta = json.loads(f["data"].attrs["env_args"])

@@ -207,7 +207,17 @@ def run_rollout(
 
     policy.start_episode()
 
-    ob_dict = env.reset()
+    ############### from visualize subtasks
+    dataset_path = "/home/eric/r3d/datasets/pick_place_mug/overfit1_ppmug/demo.hdf5"
+    f = h5py.File(dataset_path, "r")
+    states = f["data/{}/states".format('demo_0')][()]
+    initial_state = dict(states=states[0])
+    initial_state["model"] = f["data/{}".format('demo_0')].attrs["model_file"]
+
+    ###############
+
+    # ob_dict = env.reset()
+    ob_dict = env.reset_to(initial_state)
     goal_dict = None
     if use_goals:
         # retrieve goal from the environment

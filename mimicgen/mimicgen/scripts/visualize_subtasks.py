@@ -79,6 +79,7 @@ def visualize_subtasks_with_env(
     env.reset()
     env.reset_to(initial_state)
     traj_len = len(states)
+    
 
     cur_subtask_ind = 0
     should_add_border_to_frame = False
@@ -92,7 +93,6 @@ def visualize_subtasks_with_env(
         # on-screen render
         if render:
             env.render(mode="human", camera_name=camera_names[0])
-
             if is_last_subtask_ind:
                 # pause on last index of current subtask
                 input("Pausing after subtask {} execution. Press any key to continue...".format(cur_subtask_ind))
@@ -114,6 +114,8 @@ def visualize_subtasks_with_env(
                 # toggle whether to add red border for next subtask
                 should_add_border_to_frame = (not should_add_border_to_frame)
                 cur_subtask_ind += 1
+
+        if i > 2: input() 
 
 
 def visualize_subtasks_with_obs(
@@ -176,6 +178,8 @@ def visualize_subtasks(args):
     if args.render_image_names is None:
         env_meta = get_env_metadata_from_dataset(dataset_path=args.dataset)
         args.render_image_names = RobomimicUtils.get_default_env_cameras(env_meta=env_meta)
+
+    # print("args dataset metadata", env_meta)
 
     if args.render:
         # on-screen rendering can only support one camera
@@ -267,6 +271,9 @@ def visualize_subtasks(args):
         initial_state = dict(states=states[0])
         if is_robosuite_env:
             initial_state["model"] = f["data/{}".format(ep)].attrs["model_file"]
+
+        print("initial state: ", initial_state['model'])
+        print('states', states[0])
         visualize_subtasks_with_env(
             env=env,
             initial_state=initial_state,

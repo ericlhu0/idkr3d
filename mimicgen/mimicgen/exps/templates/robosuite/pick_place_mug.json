@@ -35,8 +35,8 @@
     "obs": {
         "collect_obs": true,
         "camera_names": [],
-        "camera_height": 84,
-        "camera_width": 84
+        "camera_height": 256,
+        "camera_width": 256
     },
     "task": {
         "task_spec": {
