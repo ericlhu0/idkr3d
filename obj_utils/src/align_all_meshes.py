@@ -3,10 +3,18 @@ import trimesh
 import os
 import align_meshes
 
-# read in the reference mesh of the mug
+## NOTE: The mug in "ref_mug" is the one used to crop out the handle as that one
+## is the one that was translated so that its handle is also at y=0. Use that one
+## when importing into blender to crop.
+
+# read in the reference mesh of the original mug; this is the reference orientation
 ref_mesh_path = "../og_objects/mug"
 
+
+# the folder with all the raw generated objects
 gen_folder_path = "../../gen_objects/objs/"
+
+# output path for aligned orientation objects
 output_folder_path = "../aligned_gen_objs/"
 
 obj_file_paths = []

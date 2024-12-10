@@ -49,7 +49,7 @@ def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
 
     radial_distances = np.linalg.norm(vertices[:, :2] - body_center_xy, axis=1)
     height_mask = (z_coords > z_min + 0.1 * height) & (z_coords < z_max - 0.2 * height)
-    handle_mask = (radial_distances > mean_radius + 1.5 * radius_std) & height_mask
+    handle_mask = (radial_distances > mean_radius + 1.5 * radius_std) & height_mask & (vertices[:, 0] > 0) #added last boolean for handle detection; handle is on the positive x axis
     handle_vertices = vertices[handle_mask]
     mug_centroid_3d = np.mean(body_vertices, axis=0)  # use body centroid (not full mug)
     handle_centroid_3d = np.mean(handle_vertices, axis=0)
@@ -111,19 +111,20 @@ def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
   
   def scale_mesh_to_match_bounding_box(mesh1, mesh2):
     """
-    Scales mesh1 to match the bounding box of mesh2.
+    Scales mesh1 to match the bounding box height of mesh2.
     """
     # Get the bounding boxes of both meshes
     min1, max1 = mesh1.bounding_box.bounds
     min2, max2 = mesh2.bounding_box.bounds
     
     # Calculate the scale factor based on the largest dimension of the bounding boxes
-    scale_factor = max(max2 - min2) / max(max1 - min1)
+    scale_factor_y = (max2[1] - min2[1]) / (max1[1] - min1[1])
 
-    print('scale factor', scale_factor)
+    print('scale factor y: ', scale_factor_y)
     
     # Scale mesh1
-    mesh1.vertices *= scale_factor
+    mesh1.vertices *= scale_factor_y
+
     return mesh1
 
 
@@ -132,6 +133,10 @@ def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
 
   # scale the new mesh to match the bounding box of the og mesh
   new_mesh = scale_mesh_to_match_bounding_box(new_mesh, og_mesh)
+
+  # rotate mesh 90 degrees along x
+  x_rot = trimesh.transformations.rotation_matrix(np.radians(90), [1, 0, 0])
+  new_mesh.apply_transform(x_rot)
 
   # translate the base of the object up so that the base starts at 0, 0
   new_mesh = translate_mesh(new_mesh)
@@ -143,13 +148,17 @@ def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
 
   new_mesh.vertices = new_mesh.vertices.dot(rot.T)
 
+  ## THIS FAILS B/C HANDLE CENTROIDS ARE INCORRECT
   # translate the new mesh so that the handle centroids match
-  og_mesh_handle_centroid = get_handle_centroid(og_mesh)
-  new_mesh_handle_centroid = get_handle_centroid(new_mesh)
-  new_mesh.vertices += (og_mesh_handle_centroid - new_mesh_handle_centroid)
+  # og_mesh_handle_centroid = get_handle_centroid(og_mesh)
+  # new_mesh_handle_centroid = get_handle_centroid(new_mesh)
+  # new_mesh.vertices += (og_mesh_handle_centroid - new_mesh_handle_centroid)
+
+  # Translate the mesh so that the handle is at y = 0 to align for cropping
+  max_y = new_mesh.vertices[np.argmax(new_mesh.vertices[:, 1]), 1]
+  new_mesh.vertices[:, 1] -= max_y
   translate_mesh(new_mesh) ## put the base at z=0
 
-  # new_mesh.export(new_mesh_filename + 'Rotated.obj', file_type = 'obj')
   new_mesh.export(output_path + 'Rotated.obj', file_type='obj')
   
 

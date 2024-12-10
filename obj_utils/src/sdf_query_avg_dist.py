@@ -77,8 +77,8 @@ def align_and_compare_meshes(mesh1, mesh2):
     Then, compute the SDF error to compare the meshes.
     """
     # Step 1: Center meshes
-    # mesh1 = center_mesh(mesh1)
-    # mesh2 = center_mesh(mesh2)
+    mesh1 = center_mesh(mesh1)
+    mesh2 = center_mesh(mesh2)
 
     # Step 2: Scale mesh1 to match the bounding box of mesh2
     mesh1 = scale_mesh_to_match_bounding_box(mesh1, mesh2)
@@ -98,7 +98,7 @@ def visualize_meshes(mesh1, mesh2, sdf_error):
 
     # Set mesh2 (ground truth) to black and mesh1 (proposed) to light green
     mesh2.visual.vertex_colors = [0, 0, 0, 255]  # Black color
-    mesh1.visual.vertex_colors = [144, 238, 144, 255]  # Light green color
+    mesh1.visual.vertex_colors = [144, 0, 0, 255]  # Light green color
 
     # Add meshes to the scene
     scene.add_geometry(mesh2)
@@ -108,11 +108,11 @@ def visualize_meshes(mesh1, mesh2, sdf_error):
     text = f"SDF Error: {sdf_error:.4f}"
     scene.show(title="Mesh Comparison", caption=text)
 
-# Load the meshes
-mesh1 = trimesh.load("og_objects/gen_mug_handle.obj")  # Replace with your mesh file
-# mesh1 = trimesh.load("mug.obj")
-# mesh1 = trimesh.load("gen_rotated.obj")
-mesh2 = trimesh.load("og_objects/og_mug_handle.obj")  # Replace with your mesh file
+# Load the proposed handle mesh
+mesh1 = trimesh.load("../base_watering_can_handles/handle_2.obj")
+
+# Ground Truth Mesh (usually the mug handle)
+mesh2 = trimesh.load("../base_watering_can_handles/gt.obj")  # Replace with your mesh file
 
 min_bound, max_bound = mesh2.bounding_box.bounds
 bbox_size = np.linalg.norm(max_bound - min_bound) 
