@@ -1,3 +1,4 @@
 *.hdf5
 core_training_results/
 datasets/
+gen_objects_sudoai/

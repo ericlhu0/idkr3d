@@ -24,13 +24,13 @@ from mimicgen.utils.file_utils import config_generator_to_script_lines
 
 # set path to folder with mimicgen generated datasets
 # DATASET_DIR = "/tmp/core_datasets"
-DATASET_DIR = "~/datasets"
+DATASET_DIR = "datasets"
 
 # set base folder for where to generate new config files for training runs
-CONFIG_DIR = "/tmp/core_train_configs"
+CONFIG_DIR = "core_train_configs"
 
 # set base folder for training outputs (model checkpoints, videos, logs)
-OUTPUT_DIR = "/tmp/core_training_results"
+OUTPUT_DIR = "core_training_results"
 
 # path to base config
 BASE_CONFIG = os.path.join(robomimic.__path__[0], "exps/templates/bc.json")

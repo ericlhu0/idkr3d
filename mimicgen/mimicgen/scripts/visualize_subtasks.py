@@ -95,7 +95,7 @@ def visualize_subtasks_with_env(
             env.render(mode="human", camera_name=camera_names[0])
             if is_last_subtask_ind:
                 # pause on last index of current subtask
-                input("Pausing after subtask {} execution. Press any key to continue...".format(cur_subtask_ind))
+                # input("Pausing after subtask {} execution. Press any key to continue...".format(cur_subtask_ind))
                 cur_subtask_ind += 1
 
         # video render
@@ -113,9 +113,7 @@ def visualize_subtasks_with_env(
             if is_last_subtask_ind:
                 # toggle whether to add red border for next subtask
                 should_add_border_to_frame = (not should_add_border_to_frame)
-                cur_subtask_ind += 1
-
-        if i > 2: input() 
+                cur_subtask_ind += 1            
 
 
 def visualize_subtasks_with_obs(

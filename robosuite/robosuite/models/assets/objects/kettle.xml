@@ -2,14 +2,16 @@
   <asset>
     <mesh file="meshes/mug.obj" name="kettle_mesh" scale="0.6 0.6 0.6" />
     <mesh file="meshes/mug.obj" name="kettle_visual_mesh" scale="0.6 0.6 0.6" />
-    <texture file="../textures/ceramic.png" name="tex-ceramic" type="2d" />
-    <material name="ceramic" reflectance="0.5" texrepeat="1 1" texture="tex-ceramic" texuniform="true" />
+
+    <!-- <mesh file="meshes/demo_objects/0a2aa28dd0924f6a80e73d2fb7fb1a50.obj" name="kettle_visual_mesh" scale="0.15 0.15 0.15" /> -->
+    <!-- <texture file="meshes/demo_objects/0a2aa28dd0924f6a80e73d2fb7fb1a50.png" name="tex-ceramic" type="2d" /> -->
+    <!-- <material name="ceramic" reflectance="0.5" texrepeat="1 1" texture="tex-ceramic" texuniform="true" /> -->
   </asset>
   <worldbody>
     <body>
       <body name="object">
         
-        <geom pos="0 0 0" mesh="kettle_mesh" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" rgba="0 0 0 0" density="100" friction="0.95 0.3 0.1" material="ceramic" group="0" condim="4" />
+        <geom pos="0 0 0" mesh="kettle_mesh" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" rgba="0 0 0 0" density="100" friction="0.95 0.3 0.1" group="0" condim="4" />
         <geom pos="0 0 0" mesh="kettle_visual_mesh" type="mesh" contype="0" conaffinity="0" group="1" />
 
         <camera name="kettle_camera" pos="0 0.3 0.04" quat="0 0 0.7071 0.7071" fovy="30" />

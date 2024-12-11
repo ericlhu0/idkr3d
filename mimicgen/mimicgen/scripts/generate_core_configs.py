@@ -24,16 +24,16 @@ from mimicgen.utils.file_utils import config_generator_to_script_lines
 
 # set path to folder containing src datasets
 # SRC_DATA_DIR = os.path.join(mimicgen.__path__[0], "../datasets/source")
-SRC_DATA_DIR = "~/r3d/robosuite/robosuite/models/assets/demonstrations/ppmugr_real-12-02-2am/"
+SRC_DATA_DIR = "~/r3d/robosuite/robosuite/models/assets/demonstrations/1552_09_12_15demos/"
 
 # set base folder for where to copy each base config and generate new config files for data generation
-CONFIG_DIR = "/tmp/core_configs"
+CONFIG_DIR = "core_configs/"
 
 # set base folder for newly generated datasets
-OUTPUT_FOLDER = "/tmp/core_datasets"
+OUTPUT_FOLDER = "core_datasets/"
 
 # number of trajectories to generate (or attempt to generate)
-NUM_TRAJ = 2000
+NUM_TRAJ = 1000
 
 # whether to guarantee that many successful trajectories (e.g. keep running until that many successes, or stop at that many attempts)
 GUARANTEE = True
@@ -367,7 +367,8 @@ def main():
     generators = make_generators(base_configs=BASE_CONFIGS)
 
     # maybe remove existing config directory
-    config_dir = CONFIG_DIR
+    config_dir = os.path.abspath(CONFIG_DIR)
+    print("config dir: ", config_dir)
     if os.path.exists(config_dir):
         ans = input("Non-empty dir at {} will be removed.\nContinue (y / n)? \n".format(config_dir))
         if ans != "y":

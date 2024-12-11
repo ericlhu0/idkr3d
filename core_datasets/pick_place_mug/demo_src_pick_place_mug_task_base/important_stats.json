@@ -1,0 +1,14 @@
+{
+    "generation_path": "core_datasets/pick_place_mug/demo_src_pick_place_mug_task_base",
+    "success_rate": 71.42857142857143,
+    "failure_rate": 28.571428571428573,
+    "num_success": 10,
+    "num_failures": 4,
+    "num_attempts": 14,
+    "num_problematic": 0,
+    "ep_length_mean": 398.5,
+    "ep_length_std": 71.55592218677641,
+    "ep_length_max": 543,
+    "ep_length_3std": 614,
+    "time spent (hrs)": "0.08"
+}

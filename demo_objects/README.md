@@ -1,0 +1,1 @@
+Objects used for presentation visualization
