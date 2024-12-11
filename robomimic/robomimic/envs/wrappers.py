@@ -59,7 +59,7 @@ class EnvWrapper(object):
 
     def _to_string(self):
         """
-        Subclasses should override this method to print out info about the 
+        Subclasses should override this method to print out info about the
         wrapper (such as arguments passed to it).
         """
         return ''
@@ -128,14 +128,14 @@ class FrameStackWrapper(EnvWrapper):
         obs_history = {}
         for k in init_obs:
             obs_history[k] = deque(
-                [init_obs[k][None] for _ in range(self.num_frames)], 
+                [init_obs[k][None] for _ in range(self.num_frames)],
                 maxlen=self.num_frames,
             )
         return obs_history
 
     def _get_stacked_obs_from_history(self):
         """
-        Helper method to convert internal variable @self.obs_history to a 
+        Helper method to convert internal variable @self.obs_history to a
         stacked observation where each key is a numpy array with leading dimension
         @self.num_frames.
         """
@@ -151,7 +151,7 @@ class FrameStackWrapper(EnvWrapper):
 
     def reset(self):
         """
-        Modify to return frame stacked observation which is @self.num_frames copies of 
+        Modify to return frame stacked observation which is @self.num_frames copies of
         the initial observation.
 
         Returns:
@@ -167,7 +167,7 @@ class FrameStackWrapper(EnvWrapper):
 
     def reset_to(self, state):
         """
-        Modify to return frame stacked observation which is @self.num_frames copies of 
+        Modify to return frame stacked observation which is @self.num_frames copies of
         the initial observation.
 
         Returns:
@@ -208,7 +208,7 @@ class FrameStackWrapper(EnvWrapper):
 
     def update_obs(self, obs, action=None, reset=False):
         obs["timesteps"] = np.array([self.timestep])
-        
+
         if reset:
             obs["actions"] = np.zeros(self.env.action_dimension)
         else:
@@ -218,3 +218,83 @@ class FrameStackWrapper(EnvWrapper):
     def _to_string(self):
         """Info to pretty print."""
         return "num_frames={}".format(self.num_frames)
+
+
+class StickyFingersWrapper(EnvWrapper):
+    """
+    Wrapper that implements "sticky fingers" behavior to prevent accidental object drops
+    by requiring multiple consecutive release commands before actually opening the gripper.
+    """
+
+    def __init__(
+            self,
+            env,
+            consecutive_steps_required=3,
+            gripper_action_idx=-1,
+    ):
+        """
+        Args:
+            env (EnvBase instance): The environment to wrap
+            consecutive_steps_required (int): Number of consecutive release commands needed
+            gripper_action_idx (int): Index of gripper action in action array
+        """
+        super(StickyFingersWrapper, self).__init__(env=env)
+        self._warn_double_wrap()
+
+        self.consecutive_steps_required = consecutive_steps_required
+        self.gripper_action_idx = gripper_action_idx
+
+        # Internal state
+        self.consecutive_release_commands = 0
+        self.current_gripper_state = -1.  # -1 is closed, 1 is open for robosuite
+
+    def step(self, action):
+        """
+        Modify the action to implement sticky fingers behavior before stepping the environment.
+
+        Args:
+            action: Original action from the policy
+
+        Returns:
+            observation: Environment observation
+            reward: Reward from the environment
+            done: Whether the episode is done
+            info: Additional information
+        """
+        # Make copy to avoid modifying original action
+        modified_action = action.copy()
+
+        # Get gripper command (in robosuite, positive is open, negative is close)
+        gripper_action = action[self.gripper_action_idx]
+        is_release_command = gripper_action > 0
+
+        if is_release_command:
+            self.consecutive_release_commands += 1
+            if self.consecutive_release_commands >= self.consecutive_steps_required:
+                # Allow the release
+                self.current_gripper_state = 1.
+            else:
+                # Override with current state (maintain grasp)
+                modified_action[self.gripper_action_idx] = self.current_gripper_state
+        else:
+            # Reset counter and close gripper
+            self.consecutive_release_commands = 0
+            self.current_gripper_state = -1.
+            modified_action[self.gripper_action_idx] = self.current_gripper_state
+
+        return self.env.step(modified_action)
+
+    def reset(self):
+        """
+        Reset internal state when environment resets.
+        """
+        self.consecutive_release_commands = 0
+        self.current_gripper_state = -1.
+        return self.env.reset()
+
+    def _to_string(self):
+        """Info to pretty print."""
+        return "consecutive_steps_required={}, gripper_action_idx={}".format(
+            self.consecutive_steps_required,
+            self.gripper_action_idx,
+        )

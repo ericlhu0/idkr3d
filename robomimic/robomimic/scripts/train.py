@@ -40,7 +40,7 @@ import robomimic.utils.file_utils as FileUtils
 from robomimic.config import config_factory
 from robomimic.algo import algo_factory, RolloutPolicy
 from robomimic.utils.log_utils import PrintLogger, DataLogger, flush_warnings
-
+from robomimic.envs.wrappers import StickyFingersWrapper
 
 def train(config, device):
     """
@@ -104,6 +104,7 @@ def train(config, device):
                 use_image_obs=shape_meta["use_images"],
                 use_depth_obs=shape_meta["use_depths"],
             )
+            env = StickyFingersWrapper(env, consecutive_steps_required=3)
             env = EnvUtils.wrap_env_from_config(env, config=config) # apply environment warpper, if applicable
             envs[env.name] = env
             print(envs[env.name])
