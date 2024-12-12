@@ -1,0 +1,10 @@
+{
+    "generation_path": "/tmp/core_datasets/pick_place_mug/demo_src_pick_place_mug_task_base",
+    "success_rate": 63.666666666666664,
+    "failure_rate": 36.333333333333336,
+    "num_success": 191,
+    "num_failures": 109,
+    "num_attempts": 300,
+    "num_problematic": 0,
+    "time spent (hrs)": "1.25"
+}

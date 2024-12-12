@@ -158,8 +158,9 @@ def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
   max_y = new_mesh.vertices[np.argmax(new_mesh.vertices[:, 1]), 1]
   new_mesh.vertices[:, 1] -= max_y
   translate_mesh(new_mesh) ## put the base at z=0
+  new_mesh.visual.material.name = new_mesh_filename.split('/')[-1]
 
-  new_mesh.export(output_path + 'Rotated.obj', file_type='obj')
+  new_mesh.export(output_path + '.obj', file_type='obj', mtl_name=new_mesh_filename.split('/')[-1]+".mtl")
   
 
 if __name__ == '__main__':

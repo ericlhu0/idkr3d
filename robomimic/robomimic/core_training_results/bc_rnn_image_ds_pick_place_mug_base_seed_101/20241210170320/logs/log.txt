@@ -1,0 +1,309 @@
+
+============= Initialized Observation Utils with Obs Spec =============
+
+using obs modality: low_dim with keys: ['robot0_eef_quat', 'robot0_eef_pos', 'robot0_gripper_qpos']
+using obs modality: rgb with keys: ['robot0_eye_in_hand_image', 'agentview_image']
+using obs modality: depth with keys: []
+using obs modality: scan with keys: []
+
+============= Loaded Environment Metadata =============
+dataset_path: datasets/pick_place_mug/demo_src_pick_place_mug_task_base/demo_failed.hdf5
+f data attrs: <KeysViewHDF5 ['env_args', 'total']>
+obs key agentview_image with shape (84, 84, 3)
+obs key robot0_eef_pos with shape (3,)
+obs key robot0_eef_quat with shape (4,)
+obs key robot0_eye_in_hand_image with shape (84, 84, 3)
+obs key robot0_gripper_qpos with shape (2,)
+[robosuite WARNING] No private macro file found! (macros.py:53)
+[robosuite WARNING] It is recommended to use a private macro file (macros.py:54)
+[robosuite WARNING] To setup, run: python /Users/eric/r3d/robosuite/robosuite/scripts/setup_macros.py (macros.py:55)
+Registering env:  MujocoEnv
+Registering env:  RobotEnv
+Registering env:  ManipulationEnv
+Registering env:  SingleArmEnv
+Registering env:  Lift
+Registering env:  Stack
+Registering env:  NutAssembly
+Registering env:  NutAssemblySingle
+Registering env:  NutAssemblySquare
+Registering env:  NutAssemblyRound
+Registering env:  PickPlace
+Registering env:  PickPlaceSingle
+Registering env:  PickPlaceMilk
+Registering env:  PickPlaceBread
+Registering env:  PickPlaceCereal
+Registering env:  PickPlaceCan
+Registering env:  Door
+Registering env:  Wipe
+Registering env:  ToolHang
+Registering env:  TwoArmEnv
+Registering env:  TwoArmLift
+Registering env:  TwoArmPegInHole
+Registering env:  TwoArmHandover
+Registering env:  TwoArmTransport
+Registering env:  PickPlaceMug
+Registering env:  PickPlaceSingle
+Registering env:  PickPlaceMilk
+Registering env:  PickPlaceBread
+Registering env:  PickPlaceCereal
+Registering env:  PickPlaceCan
+Created environment with name PickPlaceMug
+Action size is 7
+PickPlaceMug
+{
+    "camera_depths": false,
+    "camera_heights": 84,
+    "camera_names": [
+        "agentview",
+        "robot0_eye_in_hand",
+        "Milk_kettle_camera"
+    ],
+    "camera_widths": 84,
+    "controller_configs": {
+        "control_delta": true,
+        "damping_ratio": 1,
+        "damping_ratio_limits": [
+            0,
+            10
+        ],
+        "impedance_mode": "fixed",
+        "input_max": 1,
+        "input_min": -1,
+        "interpolation": null,
+        "kp": 150,
+        "kp_limits": [
+            0,
+            300
+        ],
+        "orientation_limits": null,
+        "output_max": [
+            0.05,
+            0.05,
+            0.05,
+            0.5,
+            0.5,
+            0.5
+        ],
+        "output_min": [
+            -0.05,
+            -0.05,
+            -0.05,
+            -0.5,
+            -0.5,
+            -0.5
+        ],
+        "position_limits": null,
+        "ramp_ratio": 0.2,
+        "type": "OSC_POSE",
+        "uncouple_pos_ori": true
+    },
+    "has_offscreen_renderer": true,
+    "has_renderer": false,
+    "ignore_done": true,
+    "render_gpu_device_id": 0,
+    "reward_shaping": false,
+    "robots": "Panda",
+    "use_camera_obs": true,
+    "use_object_obs": true
+}
+
+/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=None`.
+  warnings.warn(msg)
+
+============= Model Summary =============
+ObservationKeyToModalityDict: mean not found, adding mean to mapping with assumed low_dim modality!
+ObservationKeyToModalityDict: scale not found, adding scale to mapping with assumed low_dim modality!
+ObservationKeyToModalityDict: logits not found, adding logits to mapping with assumed low_dim modality!
+BC_RNN_GMM (
+  ModuleDict(
+    (policy): RNNGMMActorNetwork(
+        action_dim=7, std_activation=softplus, low_noise_eval=True, num_nodes=5, min_std=0.0001
+  
+        encoder=ObservationGroupEncoder(
+            group=obs
+            ObservationEncoder(
+                Key(
+                    name=agentview_image
+                    shape=[3, 84, 84]
+                    modality=rgb
+                    randomizer=CropRandomizer(input_shape=[3, 84, 84], crop_size=[76, 76], num_crops=1)
+                    net=VisualCore(
+                      input_shape=[3, 76, 76]
+                      output_shape=[64]
+                      backbone_net=ResNet18Conv(input_channel=3, input_coord_conv=False)
+                      pool_net=SpatialSoftmax(num_kp=32, temperature=1.0, noise=0.0)
+                    )
+                    sharing_from=None
+                )
+                Key(
+                    name=robot0_eef_pos
+                    shape=[3]
+                    modality=low_dim
+                    randomizer=None
+                    net=None
+                    sharing_from=None
+                )
+                Key(
+                    name=robot0_eef_quat
+                    shape=[4]
+                    modality=low_dim
+                    randomizer=None
+                    net=None
+                    sharing_from=None
+                )
+                Key(
+                    name=robot0_eye_in_hand_image
+                    shape=[3, 84, 84]
+                    modality=rgb
+                    randomizer=CropRandomizer(input_shape=[3, 84, 84], crop_size=[76, 76], num_crops=1)
+                    net=VisualCore(
+                      input_shape=[3, 76, 76]
+                      output_shape=[64]
+                      backbone_net=ResNet18Conv(input_channel=3, input_coord_conv=False)
+                      pool_net=SpatialSoftmax(num_kp=32, temperature=1.0, noise=0.0)
+                    )
+                    sharing_from=None
+                )
+                Key(
+                    name=robot0_gripper_qpos
+                    shape=[2]
+                    modality=low_dim
+                    randomizer=None
+                    net=None
+                    sharing_from=None
+                )
+                output_shape=[137]
+            )
+        )
+  
+        rnn=RNN_Base(
+          (per_step_net): ObservationDecoder(
+              Key(
+                  name=mean
+                  shape=(5, 7)
+                  modality=low_dim
+                  net=(Linear(in_features=1000, out_features=35, bias=True))
+              )
+              Key(
+                  name=scale
+                  shape=(5, 7)
+                  modality=low_dim
+                  net=(Linear(in_features=1000, out_features=35, bias=True))
+              )
+              Key(
+                  name=logits
+                  shape=(5,)
+                  modality=low_dim
+                  net=(Linear(in_features=1000, out_features=5, bias=True))
+              )
+          )
+          (nets): LSTM(137, 1000, num_layers=2, batch_first=True)
+        )
+    )
+  )
+)
+
+SequenceDataset: loading dataset into memory...
+  0%|          | 0/25 [00:00<?, ?it/s]100%|##########| 25/25 [00:00<00:00, 512.41it/s]
+
+============= Training Dataset =============
+SequenceDataset (
+	path=datasets/pick_place_mug/demo_src_pick_place_mug_task_base/demo_failed.hdf5
+	obs_keys=('agentview_image', 'robot0_eef_pos', 'robot0_eef_quat', 'robot0_eye_in_hand_image', 'robot0_gripper_qpos')
+	seq_length=10
+	filter_key=none
+	frame_stack=1
+	pad_seq_length=True
+	pad_frame_stack=True
+	goal_mode=none
+	cache_mode=low_dim
+	num_demos=25
+	num_sequences=10901
+)
+
+**************************************************
+Warnings generated by robomimic have been duplicated here (from above) for convenience. Please check them carefully.
+[33mROBOMIMIC WARNING(
+    No private macro file found!
+    It is recommended to use a private macro file
+    To setup, run: python /Users/eric/r3d/robomimic/robomimic/scripts/setup_macros.py
+)[0m
+**************************************************
+
+  0%|          | 0/500 [00:00<?, ?it/s]  0%|          | 1/500 [00:05<48:31,  5.83s/it]  0%|          | 2/500 [00:10<43:20,  5.22s/it]  1%|          | 3/500 [00:15<41:26,  5.00s/it]  1%|          | 4/500 [00:19<39:20,  4.76s/it]  1%|1         | 5/500 [00:24<38:21,  4.65s/it]  1%|1         | 6/500 [00:28<37:29,  4.55s/it]  1%|1         | 7/500 [00:34<40:07,  4.88s/it]  2%|1         | 8/500 [00:39<41:24,  5.05s/it]  2%|1         | 9/500 [00:44<40:46,  4.98s/it]  2%|2         | 10/500 [00:48<38:57,  4.77s/it]  2%|2         | 11/500 [00:52<37:39,  4.62s/it]  2%|2         | 12/500 [00:58<38:43,  4.76s/it]  3%|2         | 13/500 [01:03<41:02,  5.06s/it]  3%|2         | 14/500 [01:09<42:07,  5.20s/it]  3%|3         | 15/500 [01:14<41:25,  5.12s/it]  3%|3         | 16/500 [01:19<41:41,  5.17s/it]  3%|3         | 17/500 [01:24<40:31,  5.03s/it]  4%|3         | 18/500 [01:29<40:14,  5.01s/it]  4%|3         | 19/500 [01:34<40:35,  5.06s/it]  4%|4         | 20/500 [01:39<40:25,  5.05s/it]  4%|4         | 21/500 [01:44<40:25,  5.06s/it]  4%|4         | 22/500 [01:49<39:53,  5.01s/it]  5%|4         | 23/500 [01:55<41:31,  5.22s/it]  5%|4         | 24/500 [01:59<40:13,  5.07s/it]  5%|5         | 25/500 [02:04<38:37,  4.88s/it]  5%|5         | 25/500 [02:04<39:24,  4.98s/it]
+Traceback (most recent call last):
+  File "robomimic/robomimic/scripts/train.py", line 427, in <module>
+    main(args)
+  File "robomimic/robomimic/scripts/train.py", line 378, in main
+    train(config, device=device)
+  File "robomimic/robomimic/scripts/train.py", line 196, in train
+    step_log = TrainUtils.run_epoch(
+  File "/Users/eric/r3d/robomimic/robomimic/utils/train_utils.py", line 569, in run_epoch
+    info = model.train_on_batch(input_batch, epoch, validate=validate)
+  File "/Users/eric/r3d/robomimic/robomimic/algo/bc.py", line 137, in train_on_batch
+    predictions = self._forward_training(batch)
+  File "/Users/eric/r3d/robomimic/robomimic/algo/bc.py", line 621, in _forward_training
+    dists = self.nets["policy"].forward_train(
+  File "/Users/eric/r3d/robomimic/robomimic/models/policy_nets.py", line 853, in forward_train
+    outputs = RNN_MIMO_MLP.forward(
+  File "/Users/eric/r3d/robomimic/robomimic/models/obs_nets.py", line 789, in forward
+    rnn_inputs = TensorUtils.time_distributed(inputs, self.nets["encoder"], inputs_as_kwargs=True)
+  File "/Users/eric/r3d/robomimic/robomimic/utils/tensor_utils.py", line 951, in time_distributed
+    outputs = op(**inputs, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/r3d/robomimic/robomimic/models/obs_nets.py", line 445, in forward
+    self.nets[obs_group].forward(inputs[obs_group])
+  File "/Users/eric/r3d/robomimic/robomimic/models/obs_nets.py", line 235, in forward
+    x = self.obs_nets[k](x)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/r3d/robomimic/robomimic/models/obs_core.py", line 172, in forward
+    return super(VisualCore, self).forward(inputs)
+  File "/Users/eric/r3d/robomimic/robomimic/models/base_nets.py", line 482, in forward
+    x = self.nets(inputs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/container.py", line 219, in forward
+    input = module(input)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/r3d/robomimic/robomimic/models/base_nets.py", line 482, in forward
+    x = self.nets(inputs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/container.py", line 219, in forward
+    input = module(input)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/container.py", line 219, in forward
+    input = module(input)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torchvision/models/resnet.py", line 92, in forward
+    out = self.conv1(x)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/conv.py", line 458, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/Users/eric/miniconda3/envs/mimicgen/lib/python3.8/site-packages/torch/nn/modules/conv.py", line 454, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+KeyboardInterrupt

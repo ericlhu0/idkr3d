@@ -8,14 +8,14 @@ import align_meshes
 ## when importing into blender to crop.
 
 # read in the reference mesh of the original mug; this is the reference orientation
-ref_mesh_path = "../og_objects/mug"
+ref_mesh_path = "/Users/eric/r3d/obj_utils/og_objects/mug"
 
 
 # the folder with all the raw generated objects
-gen_folder_path = "../../gen_objects/objs/"
+gen_folder_path = "/Users/eric/r3d/gen_objects_sudoai/objswithtex/"
 
 # output path for aligned orientation objects
-output_folder_path = "../aligned_gen_objs/"
+output_folder_path = "/Users/eric/r3d/gen_objects_sudoai/alignedobjswithtex/"
 
 obj_file_paths = []
 
