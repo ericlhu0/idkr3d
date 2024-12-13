@@ -55,14 +55,14 @@ def get_exp_dir(config, auto_remove_exp_dir=False):
         # relative paths are specified relative to robomimic module location
         base_output_dir = os.path.join(robomimic.__path__[0], base_output_dir)
     base_output_dir = os.path.join(base_output_dir, config.experiment.name)
-    if os.path.exists(base_output_dir):
-        if not auto_remove_exp_dir:
-            ans = input("WARNING: model directory ({}) already exists! \noverwrite? (y/n)\n".format(base_output_dir))
-        else:
-            ans = "y"
-        if ans == "y":
-            print("REMOVING")
-            shutil.rmtree(base_output_dir)
+    # if os.path.exists(base_output_dir):
+    #     if not auto_remove_exp_dir:
+    #         ans = input("WARNING: model directory ({}) already exists! \noverwrite? (y/n)\n".format(base_output_dir))
+    #     else:
+    #         ans = "y"
+    #     if ans == "y":
+    #         print("REMOVING")
+    #         shutil.rmtree(base_output_dir)
 
     # only make model directory if model saving is enabled
     output_dir = None
@@ -233,11 +233,37 @@ def run_rollout(
     total_reward = 0.
     success = { k: False for k in env.is_success() } # success metrics
 
+    ##### sticky gripper implementation
+    sticky_gripper_state = -1
+    sticky_gripper_count = 0
+    time_steps_to_open = 3
+
     try:
         for step_i in range(horizon):
-
+            print("step: ", step_i)
             # get action from policy
             ac = policy(ob=ob_dict, goal=goal_dict)
+
+            if True:
+                # print("predicted action: ", ac)
+                sticky_gripper_count += ac[6]
+                sticky_gripper_count = max(0, sticky_gripper_count)
+                print("ac[6]: ", ac[6])
+
+                if ac[6] > 0.5: # if there's an open command, send it
+                    sticky_gripper_count = time_steps_to_open
+
+                if sticky_gripper_count == 0:
+                    sticky_gripper_state = -1
+                elif sticky_gripper_count == time_steps_to_open:
+                    sticky_gripper_state = 1
+
+                ac[6] = sticky_gripper_state
+
+                
+                print("sticky gripper count: ", sticky_gripper_count)
+                print("sticky gripper state: ", sticky_gripper_state)
+                print("sticky grippered action: ", ac)
 
             # play action
             ob_dict, r, done, _ = env.step(ac)

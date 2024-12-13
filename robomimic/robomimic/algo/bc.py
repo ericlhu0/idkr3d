@@ -135,6 +135,9 @@ class BC(PolicyAlgo):
         with TorchUtils.maybe_no_grad(no_grad=validate):
             info = super(BC, self).train_on_batch(batch, epoch, validate=validate)
             predictions = self._forward_training(batch)
+            # print('predictions:', predictions)
+            # print('batch: ', batch['actions'][0])
+            # print("predictions: ", predictions['actions'][0])
             losses = self._compute_losses(predictions, batch)
 
             info["predictions"] = TensorUtils.detach(predictions)
@@ -159,8 +162,11 @@ class BC(PolicyAlgo):
             predictions (dict): dictionary containing network outputs
         """
         predictions = OrderedDict()
+        # print("self nets policy", self.nets["policy"])
         actions = self.nets["policy"](obs_dict=batch["obs"], goal_dict=batch["goal_obs"])
         predictions["actions"] = actions
+        # print("obs in bc:", batch["obs"])
+        # print("actions in bc:", actions)
         return predictions
 
     def _compute_losses(self, predictions, batch):
@@ -564,6 +570,8 @@ class BC_RNN(BC):
         self._rnn_counter += 1
         action, self._rnn_hidden_state = self.nets["policy"].forward_step(
             obs_to_use, goal_dict=goal_dict, rnn_state=self._rnn_hidden_state)
+        
+        print('action in bc rnn:', action)
         return action
 
     def reset(self):

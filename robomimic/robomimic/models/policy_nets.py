@@ -687,6 +687,8 @@ class RNNActorNetwork(RNN_MIMO_MLP):
         outputs = super(RNNActorNetwork, self).forward(
             obs=obs_dict, goal=goal_dict, rnn_init_state=rnn_init_state, return_state=return_state)
 
+        # print("rnn actor network outputs: ", outputs['action'].shape)
+
         if return_state:
             actions, state = outputs
         else:

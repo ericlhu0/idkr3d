@@ -304,11 +304,23 @@ def generate_dataset(
 
     while True:
         # change mesh path in kettle.xml
-        if False:
+        if True:
             # Load the XML file
             xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
             tree = ET.parse(xml_file)
             root = tree.getroot()
+
+
+            # get all objs
+            directory_path = '/home/elh245/r3d/gen_objects_sudoai'  # Replace with your directory path
+            # List all files in the given directory
+            files = os.listdir(directory_path)
+            
+            # Filter and keep only the .obj files
+            obj_files = [file for file in files if file.endswith('.obj')]
+
+            # Print the list of .obj files
+            print(obj_files)
 
             # Define the new mesh file path
             new_mesh = random.choice([("meshes/generated_objs/kettle.obj", 0.15), 

@@ -12,7 +12,7 @@
         "save": {
             "enabled": true,
             "every_n_seconds": null,
-            "every_n_epochs": 20,
+            "every_n_epochs": 5,
             "epochs": [],
             "on_best_validation": false,
             "on_best_rollout_return": false,
@@ -28,7 +28,7 @@
         "video_skip": 5,
         "rollout": {
             "enabled": true,
-            "n": 50,
+            "n": 1,
             "horizon": 1000,
             "rate": 20,
             "warmstart": 0,
@@ -36,9 +36,9 @@
         }
     },
     "train": {
-        "data": "datasets/pick_place_mug/demo_src_pick_place_mug_task_base/demo.hdf5",
-        "output_dir": "core_training_results",
-        "num_data_workers": 4,
+        "data": "/home/eric/r3d/datasets/1409_11_12_500demos/pick_place_mug/demo_src_pick_place_mug_task_base/demo.hdf5",
+        "output_dir": "~/r3d/core_training_results",
+        "num_data_workers": 16,
         "hdf5_cache_mode": "low_dim",
         "hdf5_use_swmr": true,
         "hdf5_load_next_obs": false,
@@ -56,8 +56,8 @@
         ],
         "goal_mode": null,
         "cuda": true,
-        "batch_size": 16,
-        "num_epochs": 600,
+        "batch_size": 64,
+        "num_epochs": 1000,
         "seed": 101
     },
     "algo": {
@@ -65,7 +65,7 @@
             "policy": {
                 "optimizer_type": "adam",
                 "learning_rate": {
-                    "initial": 0.0001,
+                    "initial": 0.0002,
                     "decay_factor": 0.1,
                     "epoch_schedule": [],
                     "scheduler_type": "multistep"
@@ -76,9 +76,9 @@
             }
         },
         "loss": {
-            "l2_weight": 1.0,
-            "l1_weight": 0.0,
-            "cos_weight": 0.0
+            "l2_weight": 0.7,
+            "l1_weight": 0.1,
+            "cos_weight": 0.2
         },
         "actor_layer_dims": [],
         "gaussian": {
@@ -90,7 +90,7 @@
             "low_noise_eval": true
         },
         "gmm": {
-            "enabled": true,
+            "enabled": false,
             "num_modes": 5,
             "min_std": 0.0001,
             "std_activation": "softplus",
@@ -207,8 +207,8 @@
                 },
                 "obs_randomizer_class": "CropRandomizer",
                 "obs_randomizer_kwargs": {
-                    "crop_height": 76,
-                    "crop_width": 76,
+                    "crop_height": 167,
+                    "crop_width": 167,
                     "num_crops": 1,
                     "pos_enc": false
                 }
