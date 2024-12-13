@@ -52,13 +52,18 @@ def compute_sdf_error(mesh1, mesh2):
       - closest_points (from gt)
     """
     sample_points_m1 = mesh1.sample(10000)
+    print('m1 sampled')
     sample_points_gt = mesh2.sample(10000)
+    print('m2 sampled')
 
     sdf_gt = compute_sdf_at_points(mesh2, sample_points_m1)
+    print('sdf_gt1')
     sdf_symmetric = compute_sdf_at_points(mesh1, sample_points_gt)
+    print('sdf symm')
 
     sdf_gt = np.mean(np.abs(sdf_gt))
     sdf_symmetric = np.mean(np.abs(sdf_symmetric))
+    print('doneerror')
 
     return (sdf_gt + sdf_symmetric) / 2
     # # Sample points on the surface of mesh1 (proposed mesh)
@@ -109,10 +114,10 @@ def visualize_meshes(mesh1, mesh2, sdf_error):
     scene.show(title="Mesh Comparison", caption=text)
 
 # Load the proposed handle mesh
-mesh1 = trimesh.load("../base_watering_can_handles/handle_2.obj")
+mesh1 = trimesh.load("/home/lifchrs/cut_handles/Kettle14.obj")#"/home/lifchrs/cut_handles/MugImage11Handle.obj")
 
 # Ground Truth Mesh (usually the mug handle)
-mesh2 = trimesh.load("../base_watering_can_handles/gt.obj")  # Replace with your mesh file
+mesh2 = trimesh.load("../../gt_handle.obj")  # Replace with your mesh file
 
 min_bound, max_bound = mesh2.bounding_box.bounds
 bbox_size = np.linalg.norm(max_bound - min_bound) 
@@ -123,7 +128,7 @@ sdf_error = sdf_error / bbox_size
 print(f"SDF error: {sdf_error}")
 
 # Visualize the meshes and the error
-visualize_meshes(mesh1, mesh2, sdf_error)
+# visualize_meshes(mesh1, mesh2, sdf_error)
 
 # # Visualize only the sampled points
 # fig = plt.figure()
