@@ -35,8 +35,8 @@ import numpy as np
 from copy import deepcopy
 import xml.etree.ElementTree as ET
 
-import robomimic
-from robomimic.utils.file_utils import get_env_metadata_from_dataset
+# import robomimic
+# from robomimic.utils.file_utils import get_env_metadata_from_dataset
 
 import mimicgen
 import mimicgen.utils.file_utils as MG_FileUtils
@@ -304,16 +304,25 @@ def generate_dataset(
 
     while True:
         # change mesh path in kettle.xml
-        if False:
+        if True:
             # Load the XML file
             xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
             tree = ET.parse(xml_file)
             root = tree.getroot()
 
+            # get all objs from directory
+            directory_path = '/home/elh245/r3d/gen_objects_sudoai/alignedobjswithtex/'
+            # List all files in the given directory
+            files = os.listdir(directory_path)
+            
+            # Filter and keep only the .obj files
+            obj_files = [file for file in files if file.endswith('.obj')] + ["meshes/mug.obj"]
+
+            # Print the list of .obj files
+            print(obj_files)
+
             # Define the new mesh file path
-            new_mesh = random.choice([("meshes/generated_objs/kettle.obj", 0.15), 
-                                      ("meshes/generated_objs/pitcher.obj", 0.15), 
-                                      ("meshes/mug.obj", 0.6)])
+            new_mesh = random.choice(obj_files)
             
             target_mesh_name = "kettle_visual_mesh"  # The name of the mesh to update
 
@@ -321,8 +330,12 @@ def generate_dataset(
             for mesh in root.findall(".//mesh"):
                 if mesh.get("name") == target_mesh_name:
                     print("mesh", mesh.get("file"))
-                    mesh.set("file", new_mesh[0])
-                    mesh.set("scale", f"{new_mesh[1]} {new_mesh[1]} {new_mesh[1]}")
+                    mesh.set("file", new_mesh)
+
+            for texture in root.findall(".//texture"):
+                if texture.get("name") == "tex-ceramic":
+                    texture.set("file", new_mesh.split('.')[0] + ".png")
+                
 
             # Save the updated XML back to a file
             updated_xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with your desired output file name
@@ -440,13 +453,13 @@ def generate_dataset(
     MG_FileUtils.merge_all_hdf5(
         folder=tmp_dataset_folder_path,
         new_hdf5_path=new_dataset_path,
-        delete_folder=True,
+        delete_folder=False,
     )
     if mg_config.experiment.generation.keep_failed:
         MG_FileUtils.merge_all_hdf5(
             folder=tmp_dataset_failed_folder_path,
             new_hdf5_path=new_failed_dataset_path,
-            delete_folder=True,
+            delete_folder=False,
         )
 
     # get episode length statistics
