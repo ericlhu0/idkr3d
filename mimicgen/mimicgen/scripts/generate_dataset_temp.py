@@ -408,7 +408,7 @@ def generate_dataset(
 
     # logic for swapping out the og object with new generated ones
     # load xml
-    xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
+    xml_file = "~/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
     tree = ET.parse(xml_file)
     root = tree.getroot()
     

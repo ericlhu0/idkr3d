@@ -24,7 +24,11 @@ from mimicgen.utils.file_utils import config_generator_to_script_lines
 
 # set path to folder containing src datasets
 # SRC_DATA_DIR = os.path.join(mimicgen.__path__[0], "../datasets/source")
+<<<<<<< Updated upstream
 SRC_DATA_DIR = "~/r3d/robosuite/robosuite/models/assets/demonstrations/1552_09_12_15demos/"
+=======
+SRC_DATA_DIR = "~/r3d/robosuite/robosuite/models/assets/demonstrations/thumbnail_demo/"
+>>>>>>> Stashed changes
 
 # set base folder for where to copy each base config and generate new config files for data generation
 CONFIG_DIR = "core_configs/"
