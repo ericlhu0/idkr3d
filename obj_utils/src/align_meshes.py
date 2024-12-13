@@ -1,173 +1,188 @@
 import numpy as np
 import trimesh
-import logging
 
 def rotate_meshes(og_mesh_filename, new_mesh_filename, output_path):
+  """
+  Reads these two meshes and creates a 3rd mesh that is 'new_mesh' with its orientation rotated to match 'og_mesh'
+  The file name EXCLUDES the .obj
+
+  Parameters:
+    - og_mesh_filename: str - Name of the og_mesh file
+    - new_mesh_filename: str - Name of the new_mesh file
+
+  Returns:
+    None
+  """
+
+  def zero_mesh_z(mesh):
     """
-    Reads two meshes and creates a 3rd mesh that is 'new_mesh' with its orientation rotated to match 'og_mesh'
-    
+    Centers the mesh so that that base of the object is at 0, 0
+    (Objects start with the center of the object at 0, 0)
+    Assumes z axis movement
+
     Parameters:
-        og_mesh_filename (str): Name of the original mesh file (without .obj)
-        new_mesh_filename (str): Name of the new mesh file (without .obj)
-        output_path (str): Path for the output mesh
+      - mesh: mesh Obj
+
+    Returns:
+      - trans_mesh: mesh Obj
     """
-    def translate_mesh(mesh):
-        """Centers the mesh so the base is at z=0"""
-        z_coords = mesh.vertices[:, 2]
-        z_min = np.min(z_coords)
-        mesh.vertices[:, 2] -= z_min
-        return mesh
+    vertices = mesh.vertices
+    z_coords = vertices[:, 2]
+    z_min = np.min(z_coords)
+    mesh.vertices[:, 2] = mesh.vertices[:, 2] - z_min
 
-    def planar_direction(mesh):
-        """Calculate the planar direction vector of the handle"""
-        vertices = mesh.vertices
-        z_coords = vertices[:, 2]
-        z_min, z_max = np.min(z_coords), np.max(z_coords)
-        height = z_max - z_min
-        
-        # More permissive body mask
-        body_mask = (z_coords > z_min + 0.05*height) & (z_coords < z_max - 0.1*height)
-        body_vertices = vertices[body_mask]
-        
-        if len(body_vertices) == 0:
-            logging.warning("No vertices found in body mask")
-            return np.array([1, 0, 0])  # Default direction if detection fails
-            
-        body_center_xy = np.mean(body_vertices[:, :2], axis=0)
-        
-        # Calculate radial distances with error checking
-        body_radial_distances = np.maximum(
-            np.linalg.norm(body_vertices[:, :2] - body_center_xy, axis=1),
-            1e-6  # Prevent zero distances
-        )
-        
-        mean_radius = np.mean(body_radial_distances)
-        radius_std = np.std(body_radial_distances)
-        
-        # More permissive handle detection
-        radial_distances = np.linalg.norm(vertices[:, :2] - body_center_xy, axis=1)
-        height_mask = (z_coords > z_min + 0.05 * height) & (z_coords < z_max - 0.1 * height)
-        handle_mask = (radial_distances > mean_radius + radius_std) & height_mask
-        
-        handle_vertices = vertices[handle_mask]
-        
-        if len(handle_vertices) == 0:
-            logging.warning("No handle vertices detected")
-            return np.array([1, 0, 0])  # Default direction if handle detection fails
-            
-        handle_centroid = np.mean(handle_vertices, axis=0)
-        body_centroid = np.mean(body_vertices, axis=0)
-        
-        direction = handle_centroid - body_centroid
-        planar_direction = np.array([direction[0], direction[1], 0])
-        
-        # Safe normalization
-        norm = np.linalg.norm(planar_direction[:2])
-        if norm < 1e-6:
-            return np.array([1, 0, 0])  # Default direction if normalization would fail
-            
-        return planar_direction / norm
+    return mesh
+  
+  def body_mask(mesh):
+    vertices = mesh.vertices
+    z_coords = vertices[:, 2]
+    z_min,z_max =np.min(z_coords), np.max(z_coords)
+    height = z_max-z_min
+    body_mask = (z_coords>z_min+ 0.1*height) & (z_coords<z_max-0.2*height) # top and bottom excluded
+    return vertices[body_mask]
 
-    def compute_transformation(new_vec, og_vec):
-        """Compute the rotation matrix to align new_vec with og_vec"""
-        # Ensure vectors are normalized and non-zero
-        new_norm = np.linalg.norm(new_vec)
-        og_norm = np.linalg.norm(og_vec)
-        
-        if new_norm < 1e-6 or og_norm < 1e-6:
-            logging.warning("Zero magnitude vector encountered")
-            return np.eye(3)  # Return identity matrix if vectors are too small
-            
-        norm_new_vec = new_vec / new_norm
-        norm_og_vec = og_vec / og_norm
-        
-        # Compute rotation axis
-        axis = np.cross(norm_new_vec, norm_og_vec)
-        axis_norm = np.linalg.norm(axis)
-        
-        if axis_norm < 1e-6:
-            # Vectors are parallel or anti-parallel
-            dot_product = np.dot(norm_new_vec, norm_og_vec)
-            if dot_product > 0:
-                return np.eye(3)  # Already aligned
-            else:
-                # Need 180-degree rotation
-                return -np.eye(3)
-                
-        axis = axis / axis_norm
-        
-        # Compute rotation angle
-        theta = np.arccos(np.clip(np.dot(norm_new_vec, norm_og_vec), -1.0, 1.0))
-        
-        # Rodrigues rotation formula
-        k = np.array([
-            [0, -axis[2], axis[1]],
-            [axis[2], 0, -axis[0]],
-            [-axis[1], axis[0], 0]
-        ])
-        
-        return np.eye(3) + np.sin(theta)*k + (1 - np.cos(theta))*(k @ k)
 
-    def scale_mesh_to_match_bounding_box(mesh1, mesh2):
-        """
-        Scales mesh1 to match the bounding box height of mesh2.
-        """
-        # Get the bounding boxes of both meshes
-        min1, max1 = mesh1.bounding_box.bounds
-        min2, max2 = mesh2.bounding_box.bounds
+  def planar_direction(mesh):
+    vertices = mesh.vertices
+    z_coords = vertices[:, 2]
+    z_min,z_max =np.min(z_coords), np.max(z_coords)
+    height = z_max-z_min
+    body_mask = (z_coords>z_min+ 0.1*height) & (z_coords<z_max-0.2*height) # top and bottom excluded
+    body_vertices = vertices[body_mask]
 
-        # Calculate the scale factor based on the largest dimension of the bounding boxes
-        scale_factor_y = (max2[1] - min2[1]) / (max1[1] - min1[1])
+    body_center_xy = np.mean(body_vertices[:, :2], axis=0)
 
-        print('scale factor y: ', scale_factor_y)
+    body_radial_distances = np.linalg.norm(body_vertices[:, :2] - body_center_xy, axis=1)
+    mean_radius = np.mean(body_radial_distances)
+    radius_std = np.std(body_radial_distances)
 
-        # Scale mesh1
-        mesh1.vertices *= scale_factor_y
+    radial_distances = np.linalg.norm(vertices[:, :2] - body_center_xy, axis=1)
+    height_mask = (z_coords > z_min + 0.1 * height) & (z_coords < z_max - 0.2 * height)
+    handle_mask = (radial_distances > mean_radius + 1.5 * radius_std) & height_mask & (vertices[:, 0] < 0) #added last boolean for handle detection; handle is on the positive x axis
+    handle_vertices = vertices[handle_mask]
+    mug_centroid_3d = np.mean(body_vertices, axis=0)  # use body centroid (not full mug)
+    handle_centroid_3d = np.mean(handle_vertices, axis=0)
+    print('handle centroid', handle_centroid_3d)
+    print('mug centroid', mug_centroid_3d)
+    direction_3d = handle_centroid_3d - mug_centroid_3d
+    planar_direction = np.array([direction_3d[0], direction_3d[1], 0])
+    planar_direction = planar_direction / np.linalg.norm(planar_direction[:2])
 
-        return mesh1
+    return planar_direction
+  
+  def get_handle_centroid(mesh):
+    vertices = mesh.vertices
+    z_coords = vertices[:, 2]
+    z_min,z_max =np.min(z_coords), np.max(z_coords)
+    height = z_max-z_min
+    body_mask = (z_coords>z_min+ 0.1*height) & (z_coords<z_max-0.2*height) # top and bottom excluded
+    body_vertices = vertices[body_mask]
 
-    try:
-        # Load meshes
-        og_mesh = trimesh.load_mesh(og_mesh_filename + '.obj')
-        new_mesh = trimesh.load_mesh(new_mesh_filename + '.obj')
-        new_mesh = scale_mesh_to_match_bounding_box(new_mesh, og_mesh)
-        if og_mesh is None or new_mesh is None:
-            raise ValueError("Failed to load one or both meshes")
-            
-        # Initial rotation
-        x_rot = trimesh.transformations.rotation_matrix(np.radians(90), [1, 0, 0])
-        new_mesh.apply_transform(x_rot)
-        
-        # Center meshes
-        new_mesh = translate_mesh(new_mesh)
-        og_mesh = translate_mesh(og_mesh)
-        
-        # Calculate and apply rotation
-        og_normal = planar_direction(og_mesh)
-        new_normal = planar_direction(new_mesh)
-        
-        rot = compute_transformation(new_normal, og_normal)
-        new_mesh.vertices = new_mesh.vertices @ rot.T
-        
-        # Final positioning
-        max_y = np.max(new_mesh.vertices[:, 1])
-        new_mesh.vertices[:, 1] -= max_y
-        new_mesh = translate_mesh(new_mesh)
-        
-        # Simple export with minimal parameters
-        new_mesh.export(
-            output_path + '.obj',
-            file_type='obj'
-        )
-        
-        return True
-        
-    except Exception as e:
-        logging.error(f"Error processing meshes: {str(e)}")
-        return False
+    body_center_xy = np.mean(body_vertices[:, :2], axis=0)
+
+    body_radial_distances = np.linalg.norm(body_vertices[:, :2] - body_center_xy, axis=1)
+    mean_radius = np.mean(body_radial_distances)
+    radius_std = np.std(body_radial_distances)
+
+    radial_distances = np.linalg.norm(vertices[:, :2] - body_center_xy, axis=1)
+    height_mask = (z_coords > z_min + 0.1 * height) & (z_coords < z_max - 0.2 * height)
+    handle_mask = (radial_distances > mean_radius + 1.5 * radius_std) & height_mask
+    handle_vertices = vertices[handle_mask]
+    handle_centroid_3d = np.mean(handle_vertices, axis=0)
+    return handle_centroid_3d
+
+  def compute_transformation(new_vec, og_vec):
+    """
+    Compute the transformation matrix from new_vec to og_vec
+    """
+    norm_new_vec = new_vec / np.linalg.norm(new_vec)
+    norm_og_vec = og_vec / np.linalg.norm(og_vec)
+
+    # find the axis of rotation
+    axis = np.cross(norm_new_vec, norm_og_vec)
+    axis = axis / np.linalg.norm(axis)
+    a_x = axis[0]
+    a_y = axis[1]
+    a_z = axis[2]
+
+    # angle of rotation in radians
+    print(norm_new_vec, norm_og_vec)
+    theta = np.arccos(np.dot(norm_new_vec, norm_og_vec))
+
+    print(theta)
+
+    k = np.asarray([
+      [0, -a_z, a_y],
+      [a_z, 0, -a_x],
+      [-a_y, a_x, 0]
+    ])
+
+    iden = np.eye(3)
+
+    rot = iden + np.sin(theta)*k + (1 - np.cos(theta))*(np.dot(k, k))
+
+    return rot
+  
+  def scale_mesh_to_match_bounding_box(mesh1, mesh2):
+    """
+    Scales mesh1 to match the bounding box height of mesh2.
+    """
+    # Get the bounding boxes of both meshes
+    min1, max1 = mesh1.bounding_box.bounds
+    min2, max2 = mesh2.bounding_box.bounds
+    
+    # Calculate the scale factor based on the largest dimension of the bounding boxes
+    scale_factor_z = (max2[2] - min2[2]) / (max1[2] - min1[2])
+
+    print('scale factor y: ', scale_factor_z)
+    
+    # Scale mesh1
+    mesh1.vertices *= scale_factor_z
+
+    return mesh1
+
+
+  og_mesh = trimesh.load_mesh(og_mesh_filename + '.obj')
+  new_mesh = trimesh.load_mesh(new_mesh_filename + '.obj')
+
+  # scale the new mesh to match the bounding box of the og mesh
+  # new_mesh = scale_mesh_to_match_bounding_box(new_mesh, og_mesh)
+
+  # rotate mesh 90 degrees along x
+  x_rot = trimesh.transformations.rotation_matrix(np.radians(90), [1, 0, 0])
+  new_mesh.apply_transform(x_rot)
+  z_rot = trimesh.transformations.rotation_matrix(np.radians(180), [0, 0, 1])
+  new_mesh.apply_transform(z_rot)
+
+  # translate the base of the object up so that the base is at z=0
+  new_mesh = zero_mesh_z(new_mesh)
+
+  og_normal = planar_direction(og_mesh)
+  new_normal = planar_direction(new_mesh)
+
+  rot = compute_transformation(new_normal, og_normal)
+
+  print(rot)
+
+  new_mesh.vertices = new_mesh.vertices.dot(rot.T)
+
+  ## THIS FAILS B/C HANDLE CENTROIDS ARE INCORRECT
+  # translate the new mesh so that the handle centroids match
+  # og_mesh_handle_centroid = get_handle_centroid(og_mesh)
+  # new_mesh_handle_centroid = get_handle_centroid(new_mesh)
+  # new_mesh.vertices += (og_mesh_handle_centroid - new_mesh_handle_centroid)
+
+  # Translate the mesh so that the handle is at y = 0 to align for cropping
+  # translate_mesh(new_mesh) ## put the base at z=0
+  new_mesh = scale_mesh_to_match_bounding_box(new_mesh, og_mesh)
+  max_x = new_mesh.vertices[np.argmin(new_mesh.vertices[:, 0]), 0]
+  mug_max_x = og_mesh.vertices[np.argmin(og_mesh.vertices[:, 0]), 0]
+  new_mesh.vertices[:, 0] = new_mesh.vertices[:,0] - max_x + mug_max_x
+  new_mesh.visual.material.name = new_mesh_filename.split('/')[-1]
+
+
+  new_mesh.export(output_path + '.obj', file_type='obj', mtl_name=new_mesh_filename.split('/')[-1]+".mtl")
+  
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    success = rotate_meshes('mug', 'kettle', 'output_kettle')
-    print("Processing completed successfully" if success else "Processing failed")
-
+  rotate_meshes('mug', 'kettle')

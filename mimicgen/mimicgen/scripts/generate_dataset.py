@@ -35,8 +35,8 @@ import numpy as np
 from copy import deepcopy
 import xml.etree.ElementTree as ET
 
-# import robomimic
-# from robomimic.utils.file_utils import get_env_metadata_from_dataset
+import robomimic
+from robomimic.utils.file_utils import get_env_metadata_from_dataset
 
 import mimicgen
 import mimicgen.utils.file_utils as MG_FileUtils
@@ -306,12 +306,12 @@ def generate_dataset(
         # change mesh path in kettle.xml
         if True:
             # Load the XML file
-            xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with the path to your XML file
+            xml_file = os.path.expanduser("~/r3d/robosuite/robosuite/models/assets/objects/kettle.xml")  # Replace with the path to your XML file
             tree = ET.parse(xml_file)
             root = tree.getroot()
 
             # get all objs from directory
-            directory_path = '/home/elh245/r3d/gen_objects_sudoai/alignedobjswithtex/'
+            directory_path = os.path.expanduser('~/r3d/gen_objects_sudoai/alignedobjswithtex/')
             # List all files in the given directory
             files = os.listdir(directory_path)
             
@@ -323,6 +323,9 @@ def generate_dataset(
 
             # Define the new mesh file path
             new_mesh = random.choice(obj_files)
+            new_mesh = "~/r3d/gen_objects_sudoai/alignedobjswithtex/" + new_mesh
+            new_mesh = os.path.expanduser(new_mesh)
+            print("new mesh", new_mesh)
             
             target_mesh_name = "kettle_visual_mesh"  # The name of the mesh to update
 
@@ -338,7 +341,7 @@ def generate_dataset(
                 
 
             # Save the updated XML back to a file
-            updated_xml_file = "/Users/eric/r3d/robosuite/robosuite/models/assets/objects/kettle.xml"  # Replace with your desired output file name
+            updated_xml_file = os.path.expanduser("~/r3d/robosuite/robosuite/models/assets/objects/kettle.xml")  # Replace with your desired output file name
             tree.write(updated_xml_file)
 
 

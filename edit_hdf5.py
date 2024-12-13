@@ -1,7 +1,7 @@
 import h5py
 
-file_path = "/Users/eric/r3d/robosuite/robosuite/models/assets/demonstrations/ppmugr_real-12-02-2am/pick_place_mug.hdf5"
-key_to_delete = "demo_8"
+file_path = "/home/eric/r3d/datasets/2326_12_12_15demos/pick_place_mug.hdf5"
+key_to_delete = "demo_13"
 
 with h5py.File(file_path, 'r+') as hdf_file:
     # Navigate to the "data" group

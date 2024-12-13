@@ -1,1 +1,4 @@
 *.hdf5
+datasets/
+core_datasets*
+core_training_results/

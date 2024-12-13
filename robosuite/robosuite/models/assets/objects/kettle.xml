@@ -1,8 +1,8 @@
 <mujoco model="kettle">
   <asset>
     <mesh file="meshes/mug.obj" name="kettle_mesh" scale="0.6 0.6 0.6" />
-    <mesh file="meshes/generated_objs/pitcher.obj" name="kettle_visual_mesh" scale="0.15 0.15 0.15" />
-    <texture file="../textures/ceramic.png" name="tex-ceramic" type="2d" />
+    <mesh file="/home/eric/r3d/gen_objects_sudoai/alignedobjswithtex/2681eef17bd34a65bf594efbb5b9708c.obj" name="kettle_visual_mesh" scale="0.6 0.6 0.6" />
+    <texture file="/home/eric/r3d/gen_objects_sudoai/alignedobjswithtex/2681eef17bd34a65bf594efbb5b9708c.png" name="tex-ceramic" type="2d" />
     <material name="ceramic" reflectance="0.5" texrepeat="1 1" texture="tex-ceramic" texuniform="true" />
   </asset>
   <worldbody>

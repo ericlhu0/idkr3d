@@ -4,7 +4,7 @@
     "experiment": {
         "name": "demo_src_pick_place_mug_task_base",
         "source": {
-            "dataset_path": "~/r3d/datasets/pick_place_mug/2326_12_12_15demos/pick_place_mug.hdf5",
+            "dataset_path": "/home/eric/r3d/datasets/2326_12_12_15demos/pick_place_mug.hdf5",
             "filter_key": null,
             "n": 10,
             "start": null
